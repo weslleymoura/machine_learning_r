@@ -1,0 +1,77 @@
+---
+title: "Passo a passo com cross validation"
+author: "Weslley Moura"
+output: html_document
+---
+
+### Bibliotecas utilizadas
+```{r, message=FALSE}
+library(mlbench)
+library(caret)
+library(rpart)
+
+```
+
+### Carregando os dados
+```{r}
+data(Ionosphere)
+meusDados <- Ionosphere
+```
+
+### Garante a reproducividade do modelo
+```{r}
+set.seed(2016-11)
+```
+
+### Separa os dados entre treino e teste
+```{r}
+
+# Divide o dataset em 80% para treino e 20% para teste
+trainIndex <- createDataPartition(meusDados$Class, p=0.80, list=FALSE)
+meusDados.treino <- meusDados[ trainIndex,]
+meusDados.teste <- meusDados [-trainIndex,]
+```
+
+### An�lise explorat�ria
+```{r}
+
+# Nome das variáveis, tipos e exemplos
+str(meusDados.treino)
+
+# Distribuição da variável target
+prop.table(table(meusDados.treino$Class))
+
+# Verificando os valores únicos da variável 2
+unique (meusDados.treino$V2)
+```
+
+### Sele��o de vari�veis
+```{r}
+
+# Removendo algumas variáveis manualmente
+meusDados.treino$V2 <- NULL
+meusDados.treino$V11 <- NULL
+```
+
+### Treinando o modelo
+```{r, message=FALSE}
+
+# k-fold cross validation
+trainControl <- trainControl(method="cv", number=10, classProbs=TRUE)
+
+# Treina uma árvore de decisão
+tree <- train(Class~. , data=meusDados.treino, method="rpart", trControl=trainControl)
+
+# Verifica resultado da validação cruzada
+print(tree)
+```
+
+### Testando o modelo
+```{r}
+
+predictions <- predict(tree, newdata = meusDados.teste)
+confusionMatrix(predictions, meusDados.teste$Class)
+```
+
+
+

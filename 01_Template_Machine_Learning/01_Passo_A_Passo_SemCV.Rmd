@@ -1,0 +1,75 @@
+---
+title: "Passo a passo sem cross validation"
+author: "Weslley Moura"
+output: html_document
+---
+
+### Bibliotecas utilizadas
+```{r, message=FALSE}
+library(mlbench)
+library(caret)
+library(rpart)
+
+```
+
+### Carregando os dados
+```{r}
+data(Ionosphere)
+meusDados <- Ionosphere
+```
+
+### Garante a reproducividade do modelo
+```{r}
+set.seed(2016-11)
+```
+
+### Separa os dados entre treino e teste
+```{r}
+
+# Divide o dataset em 80% para treino e 20% para teste
+trainIndex <- createDataPartition(meusDados$Class, p=0.80, list=FALSE)
+meusDados.treino <- meusDados[ trainIndex,]
+meusDados.teste <- meusDados [-trainIndex,]
+```
+
+### Análise exploratória
+```{r}
+
+# Nome das variáveis, tipos e exemplos
+str(meusDados.treino)
+
+# Distribuição da variável target
+prop.table(table(meusDados.treino$Class))
+
+# Verificando os valores Ãºnicos da variÃ¡vel 2
+unique (meusDados.treino$V2)
+```
+
+### Seleção de variáveis
+```{r}
+
+# Removendo algumas variáveis manualmente
+meusDados.treino$V2 <- NULL
+meusDados.treino$V11 <- NULL
+```
+
+### Treinando o modelo
+```{r, message=FALSE}
+
+# Cria o modelo
+tree = rpart(Class ~ ., data = meusDados.treino)
+
+# Verifica os resultados nos dados de treino
+predictions <- predict(tree, newdata = meusDados.treino)
+confusionMatrix(ifelse(predictions[,1] > 0.5, "bad", "good"), meusDados.treino$Class)
+```
+
+### Testando o modelo
+```{r}
+
+predictions <- predict(tree, newdata = meusDados.teste)
+confusionMatrix(ifelse(predictions[,1] > 0.5, "bad", "good"), meusDados.teste$Class)
+```
+
+
+

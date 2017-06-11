@@ -1,0 +1,136 @@
+---
+title: "Ensemble: Combinando resultados de diferentes modelos"
+author: "Weslley Moura"
+output: html_document
+---
+
+> Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
+> http://machinelearningmastery.com/
+> http://machinelearningmastery.com/machine-learning-ensembles-with-r/
+> Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
+> Créditos para machinelearningmastery
+
+> Veja também http://mlwave.com/kaggle-ensembling-guide/
+
+## Configuração inicial
+
+Carrega as bibliotecas necessárias
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(mlbench)
+library(caret)
+library(caretEnsemble)
+```
+
+Carrega o dataset de exemplo
+```{r}
+# cria variavel para armazenar os dados
+data(Ionosphere)
+dataset_total <- Ionosphere
+
+#removendo a segundo atributo, pois é uma variável constante
+dataset_total <- dataset_total[,-2]
+
+#converte a variavel 1 de factor para numeric
+dataset_total$V1 <- as.numeric(as.character(dataset_total$V1))
+
+#verifica os primeiros registros
+head(dataset_total)
+```
+
+Configura alguns parâmetros gerais
+```{r}
+#garante reprodutividade do código
+set.seed(123)
+
+# Define nossa métrica para avaliação do modelo
+metric <- "Accuracy"
+```
+
+Separa o dataset entre treino e teste
+```{r}
+s <-createDataPartition(y=dataset_total$Class,p=0.7,list=FALSE)
+dataset <-dataset_total[s,]
+dataset_test <-dataset_total[-s,]
+```
+
+## Ensemble usando stacking
+
+Criaremos 5 modelos primários:
+
+* Linear Discriminate Analysis (LDA)
+* Classification and Regression Trees (CART)
+* Logistic Regression (via Generalized Linear Model or GLM)
+* k-Nearest Neighbors (KNN)
+* Support Vector Machine with a Radial Basis Kernel Function (SVM)
+
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Parâmetros de controle do treino
+trainControl <- trainControl(method="repeatedcv", number=10, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+
+# Lista de algoritmos que serão utilziados
+algorithmList <- c('lda', 'rpart', 'glm', 'knn', 'svmRadial')
+
+# Cria os modelos da lista
+models <- caretList(Class~., data=dataset, trControl=trainControl, methodList=algorithmList)
+
+# Resultado
+results <- resamples(models)
+summary(results)
+```
+
+Note que o melhor resultado individual alcançado foi o SVM.
+
+```{r}
+dotplot(results)
+```
+
+Agora vamos verificar a correlação entre os modelos primários.
+Modelos altamente correlacionados tendem a não melhorar o resultado final.
+```{r}
+modelCor(results)
+splom(results)
+```
+
+Aparentemente não temos modelos correlacionados (geralmente com índice > 70%)
+
+Ok, vamos fazer o primeiro stacking usando um modelo linear simples
+
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+stackControl <- trainControl(method="repeatedcv", number=10, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+stack.glm <- caretStack(models, method="glm", metric="Accuracy", trControl=stackControl)
+print(stack.glm)
+```
+
+Note que a métrica accuracy melhorou com o ensemble.
+
+Agora vamos fazer outro stacking, desta vez usando o algoritmo random forest.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+stack.rf <- caretStack(models, method="rf", metric="Accuracy", trControl=stackControl)
+print(stack.rf)
+```
+Note que a métrica accuracy melhorou ainda mais.
+
+## Verificando o peso dos modelos primários
+
+Você pode usar o código abaixo para verificar o peso dos modelos primários do ensemble
+```{r}
+pesoModelos <- caretEnsemble(models)
+summary(pesoModelos)
+```
+Note que nem todos os modelos primários foram selecionados aqui. Você poderia voltar na sua análise e tentar fazer um novo ensemble apenas com os modelos selecionados pelo caretEnsemble. Não vamos fazer isso aqui.
+
+## Fazendo as previsões nos dados de teste
+
+Executa o modelo nos dados de teste
+```{r}
+predictions <- predict(stack.rf, dataset_test)
+```
+
+Cria matriz de confusão para analisar o desempenho
+```{r}
+table(predictions, dataset_test$Class)
+```
+
+
+
+

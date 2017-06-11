@@ -1,0 +1,24 @@
+---
+title: "One hot encoding"
+author: "Weslley Moura"
+date: "Friday, June 09, 2017"
+output: html_document
+---
+
+```{r}
+N = 10 
+data = data.frame(
+  chave = sample(10:20, N, replace = FALSE),
+  col = sample(c("A", "B", "C"), N, replace = TRUE),
+  value = sample(1:3, N, replace = TRUE))
+str(data)
+```
+
+
+```{r, echo=FALSE}
+library(Matrix)
+sparse_matrix = sparse.model.matrix(chave~col, data = data)
+cbind(data, as.data.frame(as.matrix(sparse_matrix)))
+```
+
+

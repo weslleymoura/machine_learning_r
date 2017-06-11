@@ -1,0 +1,173 @@
+---
+title: "Extraindo o máximo dos algoritmos com data transformation"
+author: "Weslley Moura"
+output: html_document
+---
+
+## Carrega pacotes e dados.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(caret)
+library(mlbench)
+data(iris)
+data(PimaIndiansDiabetes)
+```
+
+## Resume os dados antes da transformação
+
+Dataset iris.
+```{r}
+summary(iris[,1:4])
+```
+
+Dataset PimaIndians Diabetes
+```{r}
+summary(PimaIndiansDiabetes)
+```
+
+## Transformação Scale
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(iris[,1:4], method=c("scale"))
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, iris[,1:4])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação Center
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(iris[,1:4], method=c("center"))
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, iris[,1:4])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação Standardize
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(iris[,1:4], method=c("center", "scale"))
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, iris[,1:4])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação Normalize
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(iris[,1:4], method="range")
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, iris[,1:4])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação Box-Cox
+Note que a transformação será aplicada em apenas dois atributos que parecem ter o deslocamento da curva (skew).
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(PimaIndiansDiabetes[,7:8], method=c("BoxCox"))
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, PimaIndiansDiabetes[,7:8])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação Yeo-Johnson
+Note que a transformação será aplicada em apenas dois atributos que parecem ter o deslocamento da curva (skew).
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(PimaIndiansDiabetes[,7:8], method=c("YeoJohnson"))
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, PimaIndiansDiabetes[,7:8])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação PCA
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(iris, method=c("center", "scale", "pca"))
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, iris)
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+## Transformação ICA
+
+Cria os parâmetros da transformação
+```{r}
+preprocessParams <- preProcess(PimaIndiansDiabetes[,1:8], method=c("center", "scale","ica"), n.comp=5)
+print(preprocessParams)
+```
+
+Aplica a transformação
+```{r}
+transformed <- predict(preprocessParams, PimaIndiansDiabetes[,1:8])
+```
+
+Resume os dados depois da transformação
+```{r}
+summary(transformed)
+```
+
+

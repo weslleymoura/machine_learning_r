@@ -1,0 +1,79 @@
+---
+title: "Métricas"
+author: "Weslley Moura"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Prepara o ambiente
+
+```{r, message=FALSE, warning=FALSE}
+# Pacotes
+library(caret)
+library(mlbench)
+library(e1071)
+
+# Reproducividade
+set.seed(7)
+```
+
+## Carrega os dados de exemplo
+
+```{r, message=FALSE, warning=FALSE}
+# Carrega dados de exemplo
+data(PimaIndiansDiabetes)
+```
+
+## Analisando as métricas separadamente dentro de um processo de Cross Validation K-Fold - Usando pacote Caret
+
+Neste exemplo podemos definir a métrica no parâmetro metric. 
+Algumas métricas exigem que o parâmetro summaryFunction do comando trainControl seja espeificado. Por exemplo, para usar a métrica Log Loss precisamos especificar summaryFunction=mnLogLoss: trainControl(method="cv", number=10, classProbs=TRUE, summaryFunction=mnLogLoss)
+
+```{r, message=FALSE, warning=FALSE}
+# Resampling com cross validation
+trainControl <- trainControl(method="cv", number=10, classProbs=TRUE)
+
+# Treina o modelo
+fit <- train(diabetes~., data=PimaIndiansDiabetes, method="glm", metric="Accuracy", trControl=trainControl)
+print(fit)
+```
+
+## Analisando a matriz de confusão nos dados de teste - Usando pacote Caret
+```{r, message=FALSE, warning=FALSE}
+# Divide os dados em 80% para treino e 20% para teste
+validationIndex <- createDataPartition(PimaIndiansDiabetes$diabetes, p=0.80, list=FALSE)
+validation <- PimaIndiansDiabetes[-validationIndex,]
+training <- PimaIndiansDiabetes[validationIndex,]
+
+# Resampling com cross validation
+trainControl <- trainControl(method="cv", number=10, classProbs=TRUE)
+
+# Treina o modelo
+fit.lda <- train(diabetes~., data=training, method="lda", metric="Accuracy", trControl=trainControl)
+
+# Efetua validação nos dados de teste
+predictions <- predict(fit.lda, newdata=validation)
+confusionMatrix(predictions, validation$diabetes)
+```
+
+## Para referência
+
+Para guardar como referência, este é um exemplo de código para calcular manualmente O Log Loss
+```{r}
+LogLossBinary = function(actual, predicted, eps = 1e-15) {
+  predicted = pmin(pmax(predicted, eps), 1-eps)- (sum(actual * log(predicted) + (1 - actual) * log(1 - predicted))) / length(actual)
+  }
+```
+
+Para guardar como referência, este é um exemplo de código para calcular manualmente O RMSE
+```{r}
+#sqrt( sum( (data$predictions - data$Employed)^2 , na.rm = TRUE ) / nrow(data) )
+#OU
+#sqrt( mean( (data$predictions - data$Employed)^2 , na.rm = TRUE ) )
+```
+
+
+

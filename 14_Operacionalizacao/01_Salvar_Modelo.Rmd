@@ -1,0 +1,76 @@
+---
+title: "Colocando seu modelo de aprendizagem de maquina em producao"
+author: "Weslley Moura"
+output: html_document
+---
+
+# Construcao do modelo...
+
+Monta um dataset com duas colunas: X = tempo de experiencia e Y = salario
+```{r}
+# carrega pacotes
+library(caret)
+
+a <- c(1, 1000)
+b <- c(2, 1500)
+c <- c(3, 3700)
+d <- c(4, 5000)
+e <- c(5, 4000)
+f <- c(6, 6500)
+g <- c(7, 7000)
+h <- c(8, 9000)
+i <- c(9, 9000)
+j <- c(10, 10000)
+dataPoints <- t(data.frame(a,b,c,d,e,f,g,h,i,j))
+dataPoints <- data.frame(dataPoints)
+colnames(dataPoints) <- c("x", "y")
+
+head(dataPoints)
+```
+
+Cria um modelo de regressao linear simples
+```{r}
+meuModelo <- lm (y~x, dataPoints)
+print (meuModelo)
+```
+
+Salva o modelo em um arquivo
+```{r}
+saveRDS(meuModelo, "./meuModelo.rds")
+
+```
+
+# EM PRODUCAO...
+
+Carrega o modelo
+```{r}
+meuModeloProducao <- readRDS("./meuModelo.rds")
+```
+
+Veja que a representação do modelo foi carregada sem precisar treiná-lo novamente
+```{r}
+print(meuModeloProducao)
+```
+
+Cria um conjunto de dados novos para fazer a previsão em producao.
+Veja que este dataset possui apenas a variavel tempo de experiencia, pois nosso modelo vai prever a variavel salario
+```{r}
+k <- c(11)
+l <- c(12)
+m <- c(13)
+n <- c(14)
+o <- c(15)
+p <- c(16)
+dadosNovos <- t(data.frame(k,l,m,n,o,p))
+dadosNovos <- data.frame(dadosNovos)
+colnames(dadosNovos) <- c("x")
+head(dadosNovos)
+```
+
+
+Faz as previsoes em producao usando o modelo importado do arquivo
+```{r}
+previsoes <- predict(meuModeloProducao, dadosNovos)
+previsoes
+```
+

@@ -1,0 +1,198 @@
+---
+title: "Feature selection: escolhendo as variáveis para o modelo"
+author: "Weslley Moura"
+output: html_document
+---
+
+> Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
+> Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
+> http://machinelearningmastery.com/
+> http://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
+> http://machinelearningmastery.com/an-introduction-to-feature-selection/
+
+> Exemplo de uso do Boruta foi retirado de https://www.analyticsvidhya.com, by Debarati Dutta
+> https://www.analyticsvidhya.com/blog/2016/03/select-important-variables-boruta-package/
+
+> Identificação de valores constantes e idênticos retirados de competições do Kaggle
+
+## Carrega os pacotes
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(mlbench)
+library(caret)
+library(corrplot)
+library(Boruta)
+```
+
+## Garante a reproducividade do código
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+set.seed(123)
+```
+
+## Carrega os dados que serão utilizados
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data(PimaIndiansDiabetes)
+```
+
+## Encontrar variáveis correlacionadas (Filter Method)
+
+Variáveis altamente correlacionadas podem prejudicar nosso modelo. 
+Nesta primeira parte vamos encontrar estas variáveis e removê-las do dataset de treino.
+Atenção: Não necessariamente variáveis correlacionadas reduzem a acuracidade do modelo. Faça os testes necessários sem e com estes atributos.
+
+Calcula a matriz de correlação entre as variáveis independentes.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+correlationMatrix <- cor(PimaIndiansDiabetes[,1:8])
+```
+
+Exibe a matrix.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+print(correlationMatrix)
+```
+
+Mostra a correlação por meio de um gráfico.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+col3 <- colorRampPalette(c("red", "white", "blue"))
+corrplot(correlationMatrix, order="AOE", method="square", col=col3(20), tl.srt=45, tl.cex=0.75, tl.col="black") #tl.pos="d"
+corrplot(correlationMatrix, add=TRUE, type="lower", method="number", order="AOE", col="black", diag=FALSE, tl.pos="n", cl.pos="n", number.cex=0.75)
+```
+
+Encontra os atributos altamente correlacionados (vamos usar aqui r > 0.7).
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+highlyCorrelated <- findCorrelation(correlationMatrix, cutoff=0.7)
+```
+
+Mostra os índices das colunas altamente correlacionadas.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+print(highlyCorrelated)
+```
+
+Retire estas colunas do seu dataset. 
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetesTratado <- PimaIndiansDiabetes[,-highlyCorrelated]
+```
+
+## Identificando atributos com valores constantes
+
+Atributos com valores constantes não são importantes para o modelo. 
+
+Criando um atributo com valor constante para fazermos o teste.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetes2 <- cbind(PimaIndiansDiabetes, atributo_constante = 1)
+```
+
+Elimina os valores constantes.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+i<-0
+for (f in names(PimaIndiansDiabetes2)) {
+  if (length(unique(PimaIndiansDiabetes2[[f]])) == 1) {
+    cat(f, "é uma variável constante no dataset de treino.\n")
+    PimaIndiansDiabetes2[[f]] <- NULL
+    i <- i + 1
+  }
+}
+cat("Total de variáveis excluídas: ", i)
+```
+
+## Identificando variáveis idênticas (possuem a mesma informação)
+
+Atributos com valores idênticos têm o mesmo peso no modelo. Nestes casos podemos usar apenas um deles. 
+
+Criando dois atributos com valores idênticos para fazermos o teste.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetes2 <- cbind(PimaIndiansDiabetes, atributo_identico1 = 1)
+PimaIndiansDiabetes2 <- cbind(PimaIndiansDiabetes2, atributo_identico2 = 1)
+head(PimaIndiansDiabetes2)
+```
+
+Remove os atributos idênticos.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Encontra os atributos que devem ser removidos e grava os nomes na variável "toRemove"
+featuresPair <- combn(names(PimaIndiansDiabetes2), 2, simplify = F)
+toRemove <- c()
+for(pair in featuresPair) {
+  f1 <- pair[1]
+  f2 <- pair[2]
+  
+  if (!(f1 %in% toRemove) & !(f2 %in% toRemove)) {
+    if (all(PimaIndiansDiabetes2[[f1]] == PimaIndiansDiabetes2[[f2]])) {
+      cat(f1, "e", f2, "são iguais.\n")
+      toRemove <- c(toRemove, f2)
+    }
+  }
+}   
+
+# Seleciona as colunas que devem ficar no dataset final
+feature.names <- setdiff(names(PimaIndiansDiabetes2), toRemove)
+
+#ajusta dataset
+PimaIndiansDiabetes2 <- PimaIndiansDiabetes2[, feature.names]
+
+head(PimaIndiansDiabetes2)
+```
+
+
+## Recursive Feature Elimination - RFE (wrapper method)
+
+Este é um método mais robusto onde são avaliados os impactos das variáveis combinadas.
+Primeiramente, treina-se um modelo com todas as variáveis e avalia-se seu desempenho em um conjunto de dados apartado.
+Em seguida, retira-se "x"% das variáveis mais fracas e treina-se novamente o modelo com as variáveis restantes.
+O processo continua até se observar que não é mais possível melhorar a acuracidade do modelo.
+
+Define os parâmetros de controle do RFE usando uma função de seleção random forest (mesma usada no algoritmo Boruta, mais a frente)
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+control <- rfeControl(functions=rfFuncs, method="cv", number=10)
+```
+
+Executa o RFE.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+results <- rfe(PimaIndiansDiabetes[,1:8], PimaIndiansDiabetes[,9], sizes=c(1:8), rfeControl=control)
+```
+
+Resultados.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+print(results)
+```
+
+Lista as variáveis escolhidas.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+predictors(results)
+```
+
+Plota os resultados em um gráfico.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+plot(results, type=c("g", "o"))
+```
+
+##  Boruta algorithm (wrapper method)
+
+Executa o algoritmo Boruta.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+boruta.train <- Boruta(diabetes~., data = PimaIndiansDiabetes, doTrace = 2)
+print(boruta.train)
+```
+
+Plota os resultados.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+plot(boruta.train, xlab = "", xaxt = "n")
+lz<-lapply(1:ncol(boruta.train$ImpHistory),function(i)boruta.train$ImpHistory[is.finite(boruta.train$ImpHistory[,i]),i])
+names(lz) <- colnames(boruta.train$ImpHistory)
+Labels <- sort(sapply(lz,median))
+axis(side = 1,las=2,labels = names(Labels),at = 1:ncol(boruta.train$ImpHistory), cex.axis = 0.7)
+```
+
+Classifica os atributos entre "confirmado" ou "rejeitado"
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+final.boruta <- TentativeRoughFix(boruta.train)
+print(final.boruta)
+```
+
+Lista os atributos selecionados.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+getSelectedAttributes(final.boruta, withTentative = F)
+boruta.df <- attStats(final.boruta)
+print(boruta.df)
+```
+
+> Também existe um outro conhecido wrapper method chamado Genetic Algorithm - GA
+> Você encontrará exemplos em: https://www.r-bloggers.com/feature-selection-with-carets-genetic-algorithm-option/
+

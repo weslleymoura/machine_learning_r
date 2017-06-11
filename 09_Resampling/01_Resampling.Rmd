@@ -1,0 +1,85 @@
+---
+title: "Resampling: separando os dados entre treino, validação e teste"
+author: "Weslley Moura"
+output: html_document
+---
+
+> Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
+> http://machinelearningmastery.com/
+> Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
+> Créditos para machinelearningmastery
+
+## Carrega os pacotes
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(caret)
+library(klaR)
+```
+
+## Carrega o dataset
+```{r}
+data(iris)
+```
+
+## Hold-out validation
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Divide o dataset em 80% para treino e 20% para teste
+trainIndex <- createDataPartition(iris$Species, p=0.80, list=FALSE)
+dataTrain <- iris[ trainIndex,]
+dataTest <- iris[-trainIndex,]
+
+# Treina um modelo naive Bayes
+fit <- NaiveBayes(Species~., data=dataTrain)
+
+# Executa o modelo nos dados de teste
+predictions <- predict(fit, dataTest[,1:4])
+
+# Resultados
+confusionMatrix(predictions$class, dataTest$Species)
+```
+
+## Bootstrap
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Parâmetro de controle do treino
+trainControl <- trainControl(method="boot", number=100)
+
+# Treina o modelo
+fit <- train(Species~., data=iris, trControl=trainControl, method="nb")
+
+# Resultados
+print(fit)
+```
+
+## k-fold cross validation
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Parâmetro de controle do treino
+trainControl <- trainControl(method="cv", number=10)
+
+# Treina o modelo
+fit <- train(Species~., data=iris, trControl=trainControl, method="nb")
+
+# Resultados
+print(fit)
+```
+
+## Repeated k-fold cross Validation
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Parâmetro de controle do treino
+trainControl <- trainControl(method="repeatedcv", number=10, repeats=3)
+
+# Treina o modelo
+fit <- train(Species~., data=iris, trControl=trainControl, method="nb")
+
+# Resultados
+print(fit)
+```
+
+## Leave One Out Cross Validation
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+# Parâmetro de controle do treino
+trainControl <- trainControl(method="LOOCV")
+
+# Treina o modelo
+fit <- train(Species~., data=iris, trControl=trainControl, method="nb")
+
+```
+

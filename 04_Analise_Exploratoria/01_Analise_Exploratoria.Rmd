@@ -1,0 +1,55 @@
+---
+title: "Analise exploratoria dos dados"
+author: "Weslley Moura"
+output: html_document
+---
+
+### Bibliotecas utilizadas
+```{r, message=FALSE}
+library(mlbench)
+library(e1071)
+```
+
+### Carregando os dados
+```{r}
+data(Ionosphere)
+meusDados <- Ionosphere
+```
+
+### Estrutura dos dados
+```{r}
+
+# Nome das variaveis, tipos e exemplos
+str(meusDados)
+
+# Dimensao dos dados
+dim(meusDados)
+
+# Tipos dos dados
+sapply(meusDados, class)
+```
+
+### Estatisticas basicas
+```{r}
+# Summary das primeiras 5 variaveis
+summary(meusDados[,1:5])
+
+# Distribuicao da variavel target
+cbind(freq=table(meusDados$Class), perc=prop.table(table(meusDados$Class))*100)
+
+# Desvio padrao de algumas variaveis
+sapply(meusDados[,3:9], sd)
+
+# skewness de algumas variaveis
+apply(meusDados[,3:7], 2, skewness)
+```
+
+### Consultando os dados
+```{r}
+# Seleciona os 5 primeiros registros das 9 primeiras colunas 
+head(meusDados[,1:9], n = 5)
+
+# Verificando os valores distintos de uma variaveis
+unique (meusDados$V2)
+```
+

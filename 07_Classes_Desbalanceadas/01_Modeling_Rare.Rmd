@@ -1,0 +1,140 @@
+---
+title: "Modelando casos raros com oversampling, undersampling e synthetic sampling"
+author: "Weslley Moura"
+output: html_document
+---
+
+> Referência: https://www.analyticsvidhya.com/blog/2016/03/practical-guide-deal-imbalanced-classification-problems/
+
+Carrega as bibliotecas
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(ROSE)
+library(DMwR)
+library(rpart)
+```
+
+Carrega os dados que serão usados no tutorial.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data(hacide)
+```
+
+Trabalharemos com dois datasets do pacote ROSE: hacide.train e hacide.test.
+
+A seguir a distribuição da variavel target.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+table(hacide.train$cls)
+```
+
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+prop.table(table(hacide.train$cls))
+```
+
+Agora vamos treinar um modelo de árvore de decisao para usar como referência.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+treeimb <- rpart(cls ~ ., data = hacide.train)
+pred.treeimb <- predict(treeimb, newdata = hacide.test)
+```
+
+Verifica o resultado do modelo.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+accuracy.meas(hacide.test$cls, pred.treeimb[,2])
+```
+
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+roc.curve(hacide.test$cls, pred.treeimb[,2], plotit = F)
+```
+
+Vamos criar um dataset aplicando oversampling.
+Note que usamos N = 1960 porque criaremos um dataset balanceado com 50% para cada tipo de classe.
+Como temos 980 casos como target = 0, todos eles serao utilizados sem repetição.
+Ja nos casos onde target = 1, duplicaremos as observações até alcancar a quantidade de registros desejada.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data_balanced_over <- ovun.sample(cls ~ ., data = hacide.train, method = "over", N = 1960)$data
+table(data_balanced_over$cls)
+```
+
+Da mesma forma criaremos o dataset aplicando undersampling
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data_balanced_under <- ovun.sample(cls ~ ., data = hacide.train, method = "under", N = 40, seed = 1)$data
+table(data_balanced_under$cls)
+```
+
+Ainda temos a opção de aplicar as duas técnicas ao mesmo tempo, como no comando abaixo.
+O parametro "p" refere-se a probabilidade de casos positivos na nova amostra de dados.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data_balanced_both <- ovun.sample(cls ~ ., data = hacide.train, method = "both", p=0.5, N=1000, seed = 1)$data
+table(data_balanced_both$cls)
+```
+
+As técnicas que usamos até agora possuem alguns pontos de atenção:
+* No caso do undersampling, perdemos informações de uma das classes (neste caso, classe = 0)
+* No caso do oversampling, geramos um volume considerável de observações repetidas de uma das classes (neste caso, classe = 1)
+Para evitar estes problemas, podemos gerar dados de forma sintética.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data.rose <- ROSE(cls ~ ., data = hacide.train, seed = 1)$data
+table(data.rose$cls)
+```
+
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data.smote <- SMOTE(cls ~ ., hacide.train, perc.over = 100, perc.under=200)
+table(data.smote$cls)
+```
+
+Agora vamos treinar um modelo para cada dataset de treino.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+tree.rose <- rpart(cls ~ ., data = data.rose)
+tree.smote <- rpart(cls ~ ., data = data.smote)
+tree.over <- rpart(cls ~ ., data = data_balanced_over)
+tree.under <- rpart(cls ~ ., data = data_balanced_under)
+tree.both <- rpart(cls ~ ., data = data_balanced_both)
+```
+
+Finalmente executar os modelos em dados de teste.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+pred.tree.rose <- predict(tree.rose, newdata = hacide.test)
+pred.tree.smote <- predict(tree.smote, newdata = hacide.test)
+pred.tree.over <- predict(tree.over, newdata = hacide.test)
+pred.tree.under <- predict(tree.under, newdata = hacide.test)
+pred.tree.both <- predict(tree.both, newdata = hacide.test)
+```
+
+Hora de verificar os resultados de cada um. Começando pelo syntatic sampling gerado pelo pacote ROSE.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+roc.curve(hacide.test$cls, pred.tree.rose[,2])
+accuracy.meas(hacide.test$cls, pred.tree.rose[,2])
+```
+
+Syntatic sampling gerado com SMOTE.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+roc.curve(hacide.test$cls, pred.tree.smote[,2])
+accuracy.meas(hacide.test$cls, pred.tree.smote[,2])
+```
+
+Oversampling.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+roc.curve(hacide.test$cls, pred.tree.over[,2])
+accuracy.meas(hacide.test$cls, pred.tree.over[,2])
+```
+
+Undersampling.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+roc.curve(hacide.test$cls, pred.tree.under[,2])
+accuracy.meas(hacide.test$cls, pred.tree.under[,2])
+```
+
+Ambos.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+roc.curve(hacide.test$cls, pred.tree.both[,2])
+accuracy.meas(hacide.test$cls, pred.tree.rose[,2])
+```
+
+Observamos que o melhor resultado foi alcançado com métodos sintéticos.
+O pacote ROSE também possui um recurso para analisar a acuracidade do modelo usando hold-aout and bagging.
+
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+ROSE.holdout <- ROSE.eval(cls ~ ., data = hacide.train, learner = rpart, method.assess = "holdout", extr.pred = function(obj)obj[,2], seed = 1)
+ROSE.holdout
+```
+
+
+

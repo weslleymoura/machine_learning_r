@@ -1,0 +1,52 @@
+---
+title: "Tratando missing values"
+author: "Weslley Moura"
+output: html_document
+---
+
+> Referências: 
+> http://www.measuringu.com/blog/handle-missing-data.php e http://machinelearningmastery.com/
+
+## Carrega as bibliotecas
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(mlbench)
+library(Hmisc)
+library(Amelia)
+```
+
+## Carrega dos dados
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+data(PimaIndiansDiabetes)
+data(Soybean)
+```
+
+## Considera apenas as observações sem valores ausentes (Listwise Deletion)
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetes2 <- PimaIndiansDiabetes[complete.cases(PimaIndiansDiabetes),]
+```
+
+## Substitui missing pela média (Average imputation -> Average imputation)
+
+Marca como missing os valores de pressão igual a 0
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetes$pressure[PimaIndiansDiabetes$pressure==0] <- NA
+```
+
+Formas para encontrar os valores missings
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetes[!complete.cases(PimaIndiansDiabetes),]
+#PimaIndiansDiabetes[is.na(PimaIndiansDiabetes$pressure),]
+```
+
+Insere a média da variável pressao para as observações que ficaram com valores ausentes
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+PimaIndiansDiabetes$pressure <- with(PimaIndiansDiabetes, impute(pressure, mean))
+```
+
+## Missing plot
+
+Nos fornece uma visão geral sobre o dataset. No eixo x temos os atributos e no eixo y as observações.
+```{r}
+missmap(Soybean, col=c("black", "grey"), legend=FALSE)
+```
+

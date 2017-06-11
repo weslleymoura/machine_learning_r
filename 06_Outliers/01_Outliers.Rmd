@@ -1,0 +1,43 @@
+---
+title: "Outliers"
+author: "Weslley Moura"
+output: html_document
+---
+
+##Importa os pacotes 
+```{r, message=FALSE}
+library("mlbench")
+library("outliers")
+```
+
+##Importa os dados
+```{r}
+data(PimaIndiansDiabetes)
+head(PimaIndiansDiabetes)
+```
+
+##Encontra os outliers via boxplot
+```{r}
+notOutliers <- PimaIndiansDiabetes[!PimaIndiansDiabetes$insulin %in% boxplot.stats(PimaIndiansDiabetes$insulin)$out,]
+Outliers <- PimaIndiansDiabetes[PimaIndiansDiabetes$insulin %in% boxplot.stats(PimaIndiansDiabetes$insulin)$out,]
+head(Outliers)
+```
+
+##Encontra os outliers manualmente
+```{r}
+Outliers <- subset(
+                  PimaIndiansDiabetes, 
+                    (
+                      PimaIndiansDiabetes$insulin > quantile(PimaIndiansDiabetes$insulin, probs=c(.01, .95)) [2] |
+                      PimaIndiansDiabetes$insulin < quantile(PimaIndiansDiabetes$insulin, probs=c(.01, .95))[1]
+                    )
+                  )
+head(Outliers)
+```
+
+## Usando o pacote "outliers"
+```{r}
+outlier(PimaIndiansDiabetes$insulin)
+#rm.outlier(PimaIndiansDiabetes$insulin)
+```
+

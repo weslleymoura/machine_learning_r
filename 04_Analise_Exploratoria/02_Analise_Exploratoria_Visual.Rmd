@@ -1,0 +1,96 @@
+---
+title: "Análise exploratória de dados com R"
+author: "Weslley Moura"
+output: html_document
+---
+
+Carrega pacote com os dados que serão usados no teste.
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
+library(mlbench)
+library(e1071)
+library(Amelia)
+library(corrplot)
+library(caret)
+```
+
+### Carregando os dados
+```{r}
+data(Ionosphere)
+data(PimaIndiansDiabetes)
+meusDados <- Ionosphere
+```
+
+Histograma (univariado).
+```{r}
+par(mfrow=c(3,3))
+for(i in 3:8) {
+  hist(meusDados[,i], main=names(meusDados)[i])
+}
+```
+
+Gráfico de densidade (univariado).
+```{r}
+par(mfrow=c(3,3))
+for(i in 3:8) {
+  plot(density(meusDados[,i]), main=names(meusDados)[i])
+}
+```
+
+Boxplot e Whisker (univariado).
+```{r}
+par(mfrow=c(3,3))
+for(i in 3:8) {
+  boxplot(meusDados[,i], main=names(meusDados)[i])
+}
+```
+
+Gráfico de barras.
+```{r}
+par(mfrow=c(3,3))
+for(i in 3:8) {
+  counts <- table(meusDados[,i])
+  name <- names(meusDados)[i]
+  barplot(counts, main=name)
+}
+```
+
+Mapa de valores ausentes (univariado).
+```{r}
+par(mfrow=c(1,1))
+data(Soybean)
+missmap(Soybean, col=c("black", "grey"), legend=FALSE)
+```
+
+Gráfico de correlação (multivariado)
+```{r}
+correlacao <- cor(PimaIndiansDiabetes[,1:8])
+cores <- colorRampPalette(c("red", "white", "blue"))
+corrplot(correlacao, order="AOE", method="square", col=cores(20), tl.srt=45, tl.cex=0.75, tl.col="black")
+corrplot(correlacao, add=TRUE, type="lower", method="number", order="AOE", col="black", diag=FALSE, tl.pos="n", cl.pos="n", number.cex=0.75)
+```
+
+Gráfico de dispersão (multivariado).
+```{r}
+pairs(PimaIndiansDiabetes)
+```
+
+Gráfico de dispersão por classe (multivariado).
+```{r}
+pairs(diabetes~., data=PimaIndiansDiabetes, col=PimaIndiansDiabetes$diabetes)
+```
+
+Gráfico de densidade por classe (multivariado).
+```{r}
+x <- PimaIndiansDiabetes[,1:8]
+y <- PimaIndiansDiabetes[,9]
+scales <- list(x=list(relation="free"), y=list(relation="free"))
+featurePlot(x=x, y=y, plot="density", scales=scales)
+```
+
+Boxplot por classe (multivariado)
+```{r}
+x <- PimaIndiansDiabetes[,1:8]
+y <- PimaIndiansDiabetes[,9]
+featurePlot(x=x, y=y, plot="box")
+```
+

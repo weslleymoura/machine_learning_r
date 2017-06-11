@@ -1,0 +1,74 @@
+---
+title: "Model selection"
+author: "Weslley Moura"
+output: html_document
+---
+
+### Bibliotecas utilizadas
+```{r, message=FALSE}
+library(mlbench)
+library(caret)
+library(caretEnsemble)
+library(randomForest)
+```
+
+### Carregando os dados
+```{r}
+data(Ionosphere)
+meusDados <- Ionosphere
+```
+
+### Garante a reproducividade do modelo
+```{r}
+set.seed(2016-11)
+```
+
+### Separa os dados entre treino e teste
+```{r}
+
+# Divide o dataset em 80% para treino e 20% para teste
+trainIndex <- createDataPartition(meusDados$Class, p=0.80, list=FALSE)
+meusDados.treino <- meusDados[ trainIndex,]
+meusDados.teste <- meusDados [-trainIndex,]
+```
+
+### Rápida análise exploratória
+```{r}
+
+# Distribuição da variável target
+prop.table(table(meusDados.treino$Class))
+```
+
+### Seleção de variáveis
+```{r}
+
+# Removendo algumas variáveis manualmente
+meusDados.treino$V2 <- NULL
+meusDados.treino$V11 <- NULL
+```
+
+### Treinando os modelos para comparação
+```{r, message=FALSE}
+
+# k-fold cross validation
+trainControl <- trainControl(method="cv", number=10, classProbs=TRUE, savePredictions=TRUE, index=createFolds(meusDados.treino$Class))
+
+# Lista de algoritmos que serão utilizados
+algorithmList <- c('rpart', 'rf', 'knn', 'svmRadial')
+
+# Cria os modelos da lista
+models <- caretList(Class~., data=meusDados.treino, trControl=trainControl, methodList=algorithmList)
+
+# Resultado (precisamos passar um list de modelos treinados com Train)
+results <- resamples(models)
+
+```
+
+### Verificando o melhor modelo
+```{r}
+
+scales <- list(x=list(relation="free"), y=list(relation="free"))
+bwplot(results, scales=scales)
+```
+
+
