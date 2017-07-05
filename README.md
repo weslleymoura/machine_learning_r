@@ -33,6 +33,6 @@ Cientista de dados, mestre em engenharia da computação, professor de cursos re
 Nos últimos anos vem dedicando seu tempo a projetos de aprendizagem de máquina e mantém seu site pessoal com dicas e aulas relacionadas ao tema em Hacking Analytics.
 
 # Referências do curso
-Jason Brownlee, Machine Learning Mastery
-Kaggle
-Analytics Vidhya
+- Jason Brownlee, Machine Learning Mastery
+- Kaggle
+- Analytics Vidhya
