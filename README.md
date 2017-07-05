@@ -1,3 +1,6 @@
+# URL do curso
+https://www.udemy.com/criando-modelos-de-machine-learning/
+
 # Descrição do curso
 Neste curso você aprenderá a criar modelos de machine learning do zero. Você ainda poderá usar os materiais de apoio do curso como base para desenvolver projetos na sua empresa. Os Exemplos são todos escritos em R ou Python.
 
