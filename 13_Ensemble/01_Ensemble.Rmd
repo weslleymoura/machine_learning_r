@@ -1,16 +1,11 @@
 ---
 title: "Ensemble: Combinando resultados de diferentes modelos"
-author: "Weslley Moura"
 output: html_document
 ---
 
-> Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
-> http://machinelearningmastery.com/
-> http://machinelearningmastery.com/machine-learning-ensembles-with-r/
-> Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
-> Créditos para machinelearningmastery
-
-> Veja também http://mlwave.com/kaggle-ensembling-guide/
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
 
 ## Configuração inicial
 
@@ -19,6 +14,9 @@ Carrega as bibliotecas necessárias
 library(mlbench)
 library(caret)
 library(caretEnsemble)
+library(kernlab)
+library(randomForest)
+
 ```
 
 Carrega o dataset de exemplo
@@ -131,6 +129,9 @@ Cria matriz de confusão para analisar o desempenho
 table(predictions, dataset_test$Class)
 ```
 
+Referências: 
 
+Jason Brownlee, Machine Learning Mastery
+Veja também http://mlwave.com/kaggle-ensembling-guide/
 
 

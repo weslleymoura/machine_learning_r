@@ -1,13 +1,11 @@
 ---
 title: "Model tuning: Otimizando os parâmetros do modelo"
-author: "Weslley Moura"
 output: html_document
 ---
 
-> Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
-> http://machinelearningmastery.com/
-> Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
-> Créditos para machinelearningmastery
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
 
 ## Carrega os pacotes
 ```{r, cache=FALSE, message=FALSE, warning=FALSE}
@@ -75,31 +73,6 @@ Melhor parâmetro escolhido
 print(rfGrid$bestTune)
 ```
 
-## Otimização do modelo com Manual Search
-```{r}
-trainControl <- trainControl(method="repeatedcv", number=10, repeats=3, search="grid")
-tunegrid <- expand.grid(.mtry=c(sqrt(ncol(x))))
-modellist <- list()
 
-for (ntree in c(1000, 1500, 2000, 2500)) {
-  fit <- train(Class~., data=dataset, method="rf", metric=metric, tuneGrid=tunegrid, trControl=trainControl, ntree=ntree)
-  key <- toString(ntree)
-  modellist[[key]] <- fit
-}
-
-# Comparando os resultados
-results <- resamples(modellist)
-summary(results)
-```
-
-Gráfico dos parâmetros testados
-```{r}
-dotplot(results)
-```
-
-## Algorithm Tune (tuneRF)
-```{r}
-bestmtry <- tuneRF(x, y, stepFactor=1.5, improve=1e-5, ntree=500)
-print(bestmtry)
-```
-
+Referências: 
+Jason Brownlee, Machine Learning Mastery

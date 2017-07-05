@@ -8,6 +8,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
+
 ## Prepara o ambiente
 
 ```{r, message=FALSE, warning=FALSE}

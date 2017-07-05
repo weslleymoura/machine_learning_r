@@ -1,11 +1,14 @@
 ---
 title: "Passo a passo sem cross validation"
-author: "Weslley Moura"
 output: html_document
 ---
 
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
+
 ### Bibliotecas utilizadas
-```{r, message=FALSE}
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
 library(mlbench)
 library(caret)
 library(rpart)
@@ -20,7 +23,7 @@ meusDados <- Ionosphere
 
 ### Garante a reproducividade do modelo
 ```{r}
-set.seed(2016-11)
+set.seed(10)
 ```
 
 ### Separa os dados entre treino e teste
@@ -41,14 +44,14 @@ str(meusDados.treino)
 # Distribuição da variável target
 prop.table(table(meusDados.treino$Class))
 
-# Verificando os valores Ãºnicos da variÃ¡vel 2
+# Verificando os valores unicos da variavel 2
 unique (meusDados.treino$V2)
 ```
 
 ### Seleção de variáveis
 ```{r}
 
-# Removendo algumas variáveis manualmente
+# Removendo algumas variaveis manualmente
 meusDados.treino$V2 <- NULL
 meusDados.treino$V11 <- NULL
 ```

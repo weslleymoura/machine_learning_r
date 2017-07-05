@@ -1,13 +1,16 @@
 ---
 title: "Colocando seu modelo de aprendizagem de maquina em producao"
-author: "Weslley Moura"
 output: html_document
 ---
+
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
 
 # Construcao do modelo...
 
 Monta um dataset com duas colunas: X = tempo de experiencia e Y = salario
-```{r}
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
 # carrega pacotes
 library(caret)
 
@@ -47,7 +50,7 @@ Carrega o modelo
 meuModeloProducao <- readRDS("./meuModelo.rds")
 ```
 
-Veja que a representação do modelo foi carregada sem precisar treiná-lo novamente
+Veja que a representacao do modelo foi carregada sem precisar treina-lo novamente
 ```{r}
 print(meuModeloProducao)
 ```

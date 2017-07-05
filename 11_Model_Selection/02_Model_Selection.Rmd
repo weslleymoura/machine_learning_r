@@ -1,15 +1,19 @@
 ---
 title: "Model selection"
-author: "Weslley Moura"
 output: html_document
 ---
 
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
+
 ### Bibliotecas utilizadas
-```{r, message=FALSE}
+```{r, message=FALSE, cache=FALSE, message=FALSE, warning=FALSE}
 library(mlbench)
 library(caret)
 library(caretEnsemble)
 library(randomForest)
+library(kernlab)
 ```
 
 ### Carregando os dados
@@ -20,7 +24,7 @@ meusDados <- Ionosphere
 
 ### Garante a reproducividade do modelo
 ```{r}
-set.seed(2016-11)
+set.seed(10)
 ```
 
 ### Separa os dados entre treino e teste
@@ -71,4 +75,5 @@ scales <- list(x=list(relation="free"), y=list(relation="free"))
 bwplot(results, scales=scales)
 ```
 
-
+Referências: 
+Jason Brownlee, Machine Learning Mastery

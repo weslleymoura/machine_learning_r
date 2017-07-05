@@ -1,13 +1,17 @@
 ---
 title: "Analise exploratoria dos dados"
-author: "Weslley Moura"
 output: html_document
 ---
+
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
 
 ### Bibliotecas utilizadas
 ```{r, message=FALSE}
 library(mlbench)
 library(e1071)
+library(plyr)
 ```
 
 ### Carregando os dados
@@ -29,6 +33,27 @@ dim(meusDados)
 sapply(meusDados, class)
 ```
 
+### Consultando os dados
+```{r}
+# Seleciona os 5 primeiros registros das 9 primeiras colunas 
+head(meusDados[,1:9], n = 5)
+
+# Verificando os valores distintos de uma variavel
+unique (meusDados$V2)
+
+# Filtrando linhas e colunas no mesmo comando. Sintaxe dataframe[filtro_linhas, filtro_colunas]
+meusDados[meusDados$Class == "bad" & meusDados$V1==0, c("V1", "V2", "Class")]
+```
+
+### Agrupando dados. Note que o uso do ddply nos permite criar clausulas complexas similares ao comando group by da linguagem SQL
+```{r}
+# Usando a funcao count diretamente
+count(meusDados$Class)
+
+# Usando ddply
+ddply(meusDados,~Class,summarise,contagem=length(V1))
+```
+
 ### Estatisticas basicas
 ```{r}
 # Summary das primeiras 5 variaveis
@@ -42,14 +67,5 @@ sapply(meusDados[,3:9], sd)
 
 # skewness de algumas variaveis
 apply(meusDados[,3:7], 2, skewness)
-```
-
-### Consultando os dados
-```{r}
-# Seleciona os 5 primeiros registros das 9 primeiras colunas 
-head(meusDados[,1:9], n = 5)
-
-# Verificando os valores distintos de uma variaveis
-unique (meusDados$V2)
 ```
 

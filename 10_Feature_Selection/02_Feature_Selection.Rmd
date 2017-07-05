@@ -1,19 +1,11 @@
 ---
 title: "Feature selection: escolhendo as variáveis para o modelo"
-author: "Weslley Moura"
 output: html_document
 ---
 
-> Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
-> Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
-> http://machinelearningmastery.com/
-> http://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
-> http://machinelearningmastery.com/an-introduction-to-feature-selection/
-
-> Exemplo de uso do Boruta foi retirado de https://www.analyticsvidhya.com, by Debarati Dutta
-> https://www.analyticsvidhya.com/blog/2016/03/select-important-variables-boruta-package/
-
-> Identificação de valores constantes e idênticos retirados de competições do Kaggle
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
 
 ## Carrega os pacotes
 ```{r, cache=FALSE, message=FALSE, warning=FALSE}
@@ -21,6 +13,7 @@ library(mlbench)
 library(caret)
 library(corrplot)
 library(Boruta)
+library(randomForest)
 ```
 
 ## Garante a reproducividade do código
@@ -195,4 +188,13 @@ print(boruta.df)
 
 > Também existe um outro conhecido wrapper method chamado Genetic Algorithm - GA
 > Você encontrará exemplos em: https://www.r-bloggers.com/feature-selection-with-carets-genetic-algorithm-option/
+
+Referências: 
+
+Adaptei este material do livro Machine Learning Mastery in R, de Jason Brownlee
+Para os que buscam proficiência em Machine Learning, considero uma leitura obrigatória.
+
+Exemplo de uso do Boruta foi retirado de https://www.analyticsvidhya.com, by Debarati Dutta
+
+Identificação de valores constantes e idênticos retirados de competições do Kaggle
 

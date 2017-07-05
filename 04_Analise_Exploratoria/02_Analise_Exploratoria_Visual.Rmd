@@ -1,10 +1,13 @@
 ---
 title: "Análise exploratória de dados com R"
-author: "Weslley Moura"
 output: html_document
 ---
 
-Carrega pacote com os dados que serão usados no teste.
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
+
+### Carrega pacote com os dados que serão usados no teste.
 ```{r, cache=FALSE, message=FALSE, warning=FALSE}
 library(mlbench)
 library(e1071)
@@ -20,7 +23,7 @@ data(PimaIndiansDiabetes)
 meusDados <- Ionosphere
 ```
 
-Histograma (univariado).
+### Histograma (univariado).
 ```{r}
 par(mfrow=c(3,3))
 for(i in 3:8) {
@@ -28,7 +31,7 @@ for(i in 3:8) {
 }
 ```
 
-Gráfico de densidade (univariado).
+### Gráfico de densidade (univariado).
 ```{r}
 par(mfrow=c(3,3))
 for(i in 3:8) {
@@ -36,7 +39,7 @@ for(i in 3:8) {
 }
 ```
 
-Boxplot e Whisker (univariado).
+### Boxplot (univariado).
 ```{r}
 par(mfrow=c(3,3))
 for(i in 3:8) {
@@ -44,7 +47,7 @@ for(i in 3:8) {
 }
 ```
 
-Gráfico de barras.
+### Gráfico de barras.
 ```{r}
 par(mfrow=c(3,3))
 for(i in 3:8) {
@@ -54,14 +57,7 @@ for(i in 3:8) {
 }
 ```
 
-Mapa de valores ausentes (univariado).
-```{r}
-par(mfrow=c(1,1))
-data(Soybean)
-missmap(Soybean, col=c("black", "grey"), legend=FALSE)
-```
-
-Gráfico de correlação (multivariado)
+### Gráfico de correlação (multivariado)
 ```{r}
 correlacao <- cor(PimaIndiansDiabetes[,1:8])
 cores <- colorRampPalette(c("red", "white", "blue"))
@@ -69,17 +65,17 @@ corrplot(correlacao, order="AOE", method="square", col=cores(20), tl.srt=45, tl.
 corrplot(correlacao, add=TRUE, type="lower", method="number", order="AOE", col="black", diag=FALSE, tl.pos="n", cl.pos="n", number.cex=0.75)
 ```
 
-Gráfico de dispersão (multivariado).
+### Gráfico de dispersão (multivariado).
 ```{r}
 pairs(PimaIndiansDiabetes)
 ```
 
-Gráfico de dispersão por classe (multivariado).
+### Gráfico de dispersão por classe (multivariado).
 ```{r}
 pairs(diabetes~., data=PimaIndiansDiabetes, col=PimaIndiansDiabetes$diabetes)
 ```
 
-Gráfico de densidade por classe (multivariado).
+### Gráfico de densidade por classe (multivariado).
 ```{r}
 x <- PimaIndiansDiabetes[,1:8]
 y <- PimaIndiansDiabetes[,9]
@@ -87,10 +83,12 @@ scales <- list(x=list(relation="free"), y=list(relation="free"))
 featurePlot(x=x, y=y, plot="density", scales=scales)
 ```
 
-Boxplot por classe (multivariado)
+### Boxplot por classe (multivariado)
 ```{r}
 x <- PimaIndiansDiabetes[,1:8]
 y <- PimaIndiansDiabetes[,9]
 featurePlot(x=x, y=y, plot="box")
 ```
 
+Referências: 
+Jason Brownlee, Machine Learning Mastery

@@ -1,11 +1,14 @@
 ---
 title: "Passo a passo com cross validation"
-author: "Weslley Moura"
 output: html_document
 ---
 
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
+
 ### Bibliotecas utilizadas
-```{r, message=FALSE}
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
 library(mlbench)
 library(caret)
 library(rpart)
@@ -20,7 +23,7 @@ meusDados <- Ionosphere
 
 ### Garante a reproducividade do modelo
 ```{r}
-set.seed(2016-11)
+set.seed(10)
 ```
 
 ### Separa os dados entre treino e teste
@@ -35,10 +38,10 @@ meusDados.teste <- meusDados [-trainIndex,]
 ### An�lise explorat�ria
 ```{r}
 
-# Nome das variáveis, tipos e exemplos
+# Nome das variaveis, tipos e exemplos
 str(meusDados.treino)
 
-# Distribuição da variável target
+# Distribuicao da variável target
 prop.table(table(meusDados.treino$Class))
 
 # Verificando os valores únicos da variável 2
@@ -59,10 +62,10 @@ meusDados.treino$V11 <- NULL
 # k-fold cross validation
 trainControl <- trainControl(method="cv", number=10, classProbs=TRUE)
 
-# Treina uma árvore de decisão
+# Treina uma arvore de decisao
 tree <- train(Class~. , data=meusDados.treino, method="rpart", trControl=trainControl)
 
-# Verifica resultado da validação cruzada
+# Verifica resultado da validacao cruzada
 print(tree)
 ```
 

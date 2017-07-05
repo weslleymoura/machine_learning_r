@@ -1,40 +1,38 @@
 ---
 title: "Extraindo o máximo dos algoritmos com data transformation"
-author: "Weslley Moura"
 output: html_document
 ---
+
+## Orientacoes para execucao
+Todos os pacotes utilizados neste script devem ser/estar instalados no seu ambiente de desenvolvimento.
+Para instalar um pacote use o comando install.packages("nome_do_pacote")
 
 ## Carrega pacotes e dados.
 ```{r, cache=FALSE, message=FALSE, warning=FALSE}
 library(caret)
 library(mlbench)
 data(iris)
-data(PimaIndiansDiabetes)
 ```
 
 ## Resume os dados antes da transformação
 
 Dataset iris.
 ```{r}
-summary(iris[,1:4])
-```
-
-Dataset PimaIndians Diabetes
-```{r}
-summary(PimaIndiansDiabetes)
+iris <- iris
+summary(iris)
 ```
 
 ## Transformação Scale
 
 Cria os parâmetros da transformação
 ```{r}
-preprocessParams <- preProcess(iris[,1:4], method=c("scale"))
+preprocessParams <- preProcess(iris, method=c("scale"))
 print(preprocessParams)
 ```
 
 Aplica a transformação
 ```{r}
-transformed <- predict(preprocessParams, iris[,1:4])
+transformed <- predict(preprocessParams, iris)
 ```
 
 Resume os dados depois da transformação
@@ -46,13 +44,13 @@ summary(transformed)
 
 Cria os parâmetros da transformação
 ```{r}
-preprocessParams <- preProcess(iris[,1:4], method=c("center"))
+preprocessParams <- preProcess(iris, method=c("center"))
 print(preprocessParams)
 ```
 
 Aplica a transformação
 ```{r}
-transformed <- predict(preprocessParams, iris[,1:4])
+transformed <- predict(preprocessParams, iris)
 ```
 
 Resume os dados depois da transformação
@@ -64,13 +62,13 @@ summary(transformed)
 
 Cria os parâmetros da transformação
 ```{r}
-preprocessParams <- preProcess(iris[,1:4], method=c("center", "scale"))
+preprocessParams <- preProcess(iris, method=c("center", "scale"))
 print(preprocessParams)
 ```
 
 Aplica a transformação
 ```{r}
-transformed <- predict(preprocessParams, iris[,1:4])
+transformed <- predict(preprocessParams, iris)
 ```
 
 Resume os dados depois da transformação
@@ -82,13 +80,13 @@ summary(transformed)
 
 Cria os parâmetros da transformação
 ```{r}
-preprocessParams <- preProcess(iris[,1:4], method="range")
+preprocessParams <- preProcess(iris, method="range")
 print(preprocessParams)
 ```
 
 Aplica a transformação
 ```{r}
-transformed <- predict(preprocessParams, iris[,1:4])
+transformed <- predict(preprocessParams, iris)
 ```
 
 Resume os dados depois da transformação
@@ -101,32 +99,13 @@ Note que a transformação será aplicada em apenas dois atributos que parecem ter 
 
 Cria os parâmetros da transformação
 ```{r}
-preprocessParams <- preProcess(PimaIndiansDiabetes[,7:8], method=c("BoxCox"))
+preprocessParams <- preProcess(iris, method=c("BoxCox"))
 print(preprocessParams)
 ```
 
 Aplica a transformação
 ```{r}
-transformed <- predict(preprocessParams, PimaIndiansDiabetes[,7:8])
-```
-
-Resume os dados depois da transformação
-```{r}
-summary(transformed)
-```
-
-## Transformação Yeo-Johnson
-Note que a transformação será aplicada em apenas dois atributos que parecem ter o deslocamento da curva (skew).
-
-Cria os parâmetros da transformação
-```{r}
-preprocessParams <- preProcess(PimaIndiansDiabetes[,7:8], method=c("YeoJohnson"))
-print(preprocessParams)
-```
-
-Aplica a transformação
-```{r}
-transformed <- predict(preprocessParams, PimaIndiansDiabetes[,7:8])
+transformed <- predict(preprocessParams, iris)
 ```
 
 Resume os dados depois da transformação
@@ -152,22 +131,5 @@ Resume os dados depois da transformação
 summary(transformed)
 ```
 
-## Transformação ICA
-
-Cria os parâmetros da transformação
-```{r}
-preprocessParams <- preProcess(PimaIndiansDiabetes[,1:8], method=c("center", "scale","ica"), n.comp=5)
-print(preprocessParams)
-```
-
-Aplica a transformação
-```{r}
-transformed <- predict(preprocessParams, PimaIndiansDiabetes[,1:8])
-```
-
-Resume os dados depois da transformação
-```{r}
-summary(transformed)
-```
-
-
+Referências: 
+Jason Brownlee, Machine Learning Mastery
