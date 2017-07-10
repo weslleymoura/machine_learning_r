@@ -12,7 +12,7 @@ Para instalar um pacote use o comando install.packages("nome_do_pacote")
 library(mlbench)
 library(caret)
 library(rpart)
-
+library(e1071)
 ```
 
 ### Carregando os dados
