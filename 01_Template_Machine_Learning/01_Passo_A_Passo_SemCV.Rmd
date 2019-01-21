@@ -64,14 +64,14 @@ tree = rpart(Class ~ ., data = meusDados.treino)
 
 # Verifica os resultados nos dados de treino
 predictions <- predict(tree, newdata = meusDados.treino)
-confusionMatrix(ifelse(predictions[,1] > 0.5, "bad", "good"), meusDados.treino$Class)
+confusionMatrix(factor(ifelse(predictions[,1] > 0.5, "bad", "good")), meusDados.treino$Class)
 ```
 
 ### Testando o modelo
 ```{r}
 
 predictions <- predict(tree, newdata = meusDados.teste)
-confusionMatrix(ifelse(predictions[,1] > 0.5, "bad", "good"), meusDados.teste$Class)
+confusionMatrix(factor(ifelse(predictions[,1] > 0.5, "bad", "good")), meusDados.teste$Class)
 ```
 
 
